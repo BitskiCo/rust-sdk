@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -eo pipefail
+
+eval "$(cargo-cross-env)"
+
+cargo install \
+    --root "/dist" \
+    cargo-cache cargo-edit cargo-udeps
+
+cargo install \
+    --root "/dist" \
+    --no-default-features \
+    --features postgres \
+    diesel_cli
