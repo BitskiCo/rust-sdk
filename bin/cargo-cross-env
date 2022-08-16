@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Native build
+case "$TARGETARCH $(uname -m)" in
+"amd64 x86_64" | "arm64 aarch64")
+    exit
+    ;;
+esac
+
+# Cross-platform build
+case "${TARGETARCH:-$(uname -m)}" in
+amd64 | x86_64)
+    CARGO_BUILD_TARGET=x86_64-unknown-linux-gnu
+    TARGETARCH=amd64
+    ;;
+arm64 | aarch64)
+    CARGO_BUILD_TARGET=aarch64-unknown-linux-gnu
+    TARGETARCH=arm64
+    ;;
+*)
+    echo >&2 "Target arch $TARGETARCH is not supported"
+    exit 1
+    ;;
+esac
+
+# Add the Rust arch target
+rustup target add "$CARGO_BUILD_TARGET"
+
+# Print env values to stdout
+echo "export CARGO_BUILD_TARGET=$CARGO_BUILD_TARGET"
+
+case "$TARGETARCH" in
+amd64)
+    echo "export BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_linux_gnu=--sysroot=/usr/x86_64-linux-gnu"
+    echo "export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-linux-gnu-gcc"
+    echo "export CC_x86_64_unknown_linux_gnu=x86_64-linux-gnu-gcc"
+    echo "export CXX_x86_64_unknown_linux_gnu=x86_64-linux-gnu-g++"
+    echo "export PKG_CONFIG_PATH_x86_64_unknown_linux_gnu=/usr/lib/x86_64-linux-gnu/pkgconfig"
+    echo "export PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu=/usr/x86_64-linux-gnu"
+    ;;
+arm64)
+    echo "export BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_gnu=--sysroot=/usr/aarch64-linux-gnu"
+    echo "export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc"
+    echo "export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc"
+    echo "export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++"
+    echo "export PKG_CONFIG_PATH_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu/pkgconfig"
+    echo "export PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/aarch64-linux-gnu"
+    ;;
+esac
