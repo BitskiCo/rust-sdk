@@ -30,18 +30,17 @@ FROM --platform=$BUILDPLATFORM quay.io/bitski/rust-sdk AS builder
 ARG TARGETARCH
 
 # Setup the environment and install the binary
-RUN --mount=target=/workspace \
+RUN --mount=target=. \
     --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/var/cache,sharing=locked \
-    eval "$(cargo-cross-env)" && \
-    cargo install --root "/dist"
+    --mount=type=cache,target=/var/cache/cargo \
+    cargo install --locked --root /usr/local
 
 # Use the target release image
 FROM registry.access.redhat.com/ubi8/ubi-minimal AS release
 
 # Copy the built binaries
-COPY --from=builder /dist/* /usr/local/bin/
+COPY --from=builder /usr/local/bin/* /usr/local/bin/
 
 # Set the image command
 CMD ["/usr/local/bin/hello-world"]
@@ -57,15 +56,10 @@ environmental variables.
 Build a local image:
 
 ```sh
-docker buildx build --tag quay.io/bitski/rust-sdk:latest --load .
+docker buildx bake --load local
 ```
 
 ### Publish
-
-> **Warning**
->
-> The multi-platform currently fails on AMD64 machines due to `dpkg` issues when
-> running under Qemu emulation.
 
 Login Quay.io:
 
@@ -73,13 +67,16 @@ Login Quay.io:
 docker login quay.io
 ```
 
+If you are not using Docker Desktop, install QEMU binaries:
+
+```sh
+docker run --rm --privileged tonistiigi/binfmt:latest --install arm64
+```
+
 Then build and publish the [multi-platform image][docker-multiplatform]:
 
 ```sh
-docker buildx build \
-  --platform linux/amd64,linux/arm64 \
-  --tag quay.io/bitski/rust-sdk:latest \
-  --push .
+docker buildx bake --push
 ```
 
 [buildkit]: https://github.com/moby/buildkit
