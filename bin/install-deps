@@ -23,7 +23,6 @@ esac
 dpkg --add-architecture "$ARCH"
 
 apt-get update
-apt-get upgrade -y
 apt-get install -y --no-install-recommends \
     cmake \
     libbz2-dev:$ARCH \

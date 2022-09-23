@@ -35,17 +35,21 @@ case "$TARGETARCH" in
 amd64)
     echo "export BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_linux_gnu=--sysroot=/usr/x86_64-linux-gnu"
     echo "export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-linux-gnu-gcc"
+    echo "export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS=-L/usr/lib/x86_64-linux-gnu"
     echo "export CC_x86_64_unknown_linux_gnu=x86_64-linux-gnu-gcc"
     echo "export CXX_x86_64_unknown_linux_gnu=x86_64-linux-gnu-g++"
     echo "export PKG_CONFIG_PATH_x86_64_unknown_linux_gnu=/usr/lib/x86_64-linux-gnu/pkgconfig"
-    echo "export PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu=/usr/x86_64-linux-gnu"
+    echo "export PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu=/usr/lib/x86_64-linux-gnu"
+    echo "export PQ_LIB_DIR_x86_64_unknown_linux_gnu=/usr/lib/x86_64-linux-gnu"
     ;;
 arm64)
-    echo "export BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_gnu=--sysroot=/usr/aarch64-linux-gnu"
+    echo "export BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_gnu=--sysroot=/usr/lib/aarch64-linux-gnu"
     echo "export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc"
+    echo "export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS=-L/usr/lib/aarch64-linux-gnu"
     echo "export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc"
     echo "export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++"
     echo "export PKG_CONFIG_PATH_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu/pkgconfig"
-    echo "export PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/aarch64-linux-gnu"
+    echo "export PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu"
+    echo "export PQ_LIB_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu"
     ;;
 esac
