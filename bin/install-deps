@@ -25,6 +25,7 @@ dpkg --add-architecture "$ARCH"
 apt-get update
 apt-get install -y --no-install-recommends \
     cmake \
+    jq \
     libbz2-dev:$ARCH \
     libc6-dev:$ARCH \
     libcurl4-openssl-dev:$ARCH \

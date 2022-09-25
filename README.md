@@ -23,18 +23,24 @@ Use as cross-compiler in a `Dockerfile`:
 ```dockerfile
 # syntax=docker/dockerfile:1
 
+#############################################################################
+# Build container                                                           #
+#############################################################################
+
 # Use the native builder image
 FROM --platform=$BUILDPLATFORM quay.io/bitski/rust-sdk AS builder
 
-# Expose the `TARGETARCH` env variable
+# Expose build env variables
 ARG TARGETARCH
 
-# Setup the environment and install the binary
+# Build and install the binary
 RUN --mount=target=. \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/var/cache/cargo/target,sharing=private \
     cargo install --locked --root /usr/local
+
+#############################################################################
+# Release container                                                         #
+#############################################################################
 
 # Use the target release image
 FROM registry.access.redhat.com/ubi8/ubi-minimal AS release
@@ -61,9 +67,10 @@ docker buildx bake --load local
 
 ### Publish
 
-Login Quay.io:
+Login to GitHub and Quay.io:
 
 ```sh
+docker login ghcr.io
 docker login quay.io
 ```
 
