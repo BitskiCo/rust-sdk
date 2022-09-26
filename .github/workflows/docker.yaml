@@ -13,10 +13,6 @@ permissions:
   contents: read
   packages: write
 
-env:
-  REGISTRY: quay.io
-  IMAGE_NAME: bitski/rust-sdk
-
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -42,7 +38,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            ghcr.io/bitskico/rust-sdk
+            quay.io/bitski/rust-sdk
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
@@ -55,10 +53,17 @@ jobs:
           labels: |
             ${{ steps.labels.outputs.expires-after }}
 
-      - name: Log in to the Container registry
+      - name: Log in to ghcr.io
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Log in to quay.io
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
           username: ${{ secrets.QUAY_IO_USER }}
           password: ${{ secrets.QUAY_IO_PASS }}
 

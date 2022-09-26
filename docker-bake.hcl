@@ -5,12 +5,14 @@ group "default" {
 target "defaults" {
   context = "."
   dockerfile = "Dockerfile"
+}
+
+target "docker-metadata-action" {
   tags = [
+    "ghcr.io/bitskico/rust-sdk:latest",
     "quay.io/bitski/rust-sdk:latest"
   ]
 }
-
-target "docker-metadata-action" {}
 
 target "local" {
   inherits = [

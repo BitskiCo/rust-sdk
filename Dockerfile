@@ -7,26 +7,27 @@
 # Use buster instead of bullseye for glibc-2.28
 FROM --platform=$BUILDPLATFORM rust:1-buster AS builder
 
-ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
-# Set cargo target dir for caching
-ENV CARGO_TARGET_DIR=/var/cache/cargo/target
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH=/usr/local/rust-sdk/bin:$PATH
+ENV PATH=/usr/local/cargo-wrapper/bin:$PATH
 
-# Install scripts
-COPY bin/cargo-cross-env /usr/local/bin/
+ENV CARGO_HOME=/var/cache/cargo
+ENV CARGO_TARGET_DIR=/var/cache/cargo/target
+ENV SCCACHE_DIR=/var/cache/sccache
 
 # Install dependencies
 RUN --mount=target=/usr/local/bin/install-deps,source=bin/install-deps \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && install-deps
+    install-deps
 
-# Run builder
+# Install cargo bins
+COPY bin/cargo-cross-env /usr/local/rust-sdk/bin/
 RUN --mount=target=/usr/local/bin/install-cargo-bins,source=bin/install-cargo-bins \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/var/cache/cargo/target,sharing=private \
     install-cargo-bins
 
 #############################################################################
@@ -36,29 +37,33 @@ RUN --mount=target=/usr/local/bin/install-cargo-bins,source=bin/install-cargo-bi
 # Use buster instead of bullseye for glibc-2.28
 FROM rust:1-buster AS release
 
-ARG DEBIAN_FRONTEND=noninteractive
+ARG TARGETARCH
 
-# Set cargo target dir for caching
+ENV PATH=/usr/local/rust-sdk/bin:$PATH
+ENV PATH=/usr/local/cargo-wrapper/bin:$PATH
+
+ENV CARGO_HOME=/var/cache/cargo
 ENV CARGO_TARGET_DIR=/var/cache/cargo/target
+ENV SCCACHE_DIR=/var/cache/sccache
 
 # Install dependencies
-RUN --mount=target=/usr/local/bin/install-deps,source=bin/install-deps \
+# $TARGETARCH must be last to support native builds
+RUN --mount=target=/usr/local/bin,source=bin \
     --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    for arch in amd64 arm64; do TARGETARCH=$arch install-deps; done
+    for arch in amd64 arm64 $TARGETARCH; do \
+    TARGETARCH=$arch install-deps; \
+    done
 
 # Download public key for github.com
-RUN mkdir -p -m 0600 ~/.ssh && \
-    ssh-keyscan github.com | \
-    tee -a /etc/ssh/ssh_known_hosts
-
-# Configure env
-RUN echo 'eval "$(cargo-cross-env)"' >> /etc/profile
+RUN ssh-keyscan github.com | tee -a /etc/ssh/ssh_known_hosts
 
 # Install executables
-COPY --from=builder /usr/local/bin/* /usr/local/bin/
-
-# Install buf
-COPY --from=bufbuild/buf /usr/local/bin/buf /usr/local/bin/
+COPY --from=bufbuild/buf /usr/local/bin/buf /usr/local/rust-sdk/bin/
+COPY --from=builder /usr/local/rust-sdk/bin/* /usr/local/rust-sdk/bin/
+COPY bin/cargo /usr/local/cargo-wrapper/bin/
 
 WORKDIR /workspace
+
+# Cache cargo index
+RUN cargo search --limit 0

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source cargo-cross-env
+
+PATH=$(echo $PATH | tr : "\n" | grep -v /cargo-wrapper/ | tr "\n" :)
+export PATH="${PATH%:}"
+
+echo 'Environment:'
+env
+
+cargo "${@:1}"
