@@ -35,6 +35,7 @@ ARG TARGETARCH
 
 # Build and install the binary
 RUN --mount=target=. \
+    --mount=type=cache,target=/var/cache/cargo/git \
     --mount=type=cache,target=/var/cache/cargo/target,sharing=private \
     cargo install --locked --root /usr/local
 

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eo pipefail
+
 ARCH=$(uname -m)
 
 case "$TARGETARCH $ARCH" in
@@ -21,8 +23,15 @@ esac
 
 TOOLCHAIN=$(rustup show active-toolchain | cut -d' ' -f1)
 
-export CARGO_TARGET_DIR="$CARGO_TARGET_DIR/$TOOLCHAIN"
-export SCCACHE_DIR="$SCCACHE_DIR/$TOOLCHAIN"
+CARGO_TARGET_DIR="${CARGO_WRAPPER_TARGET_DIR:-$CARGO_TARGET_DIR}"
+if [[ -n "$CARGO_TARGET_DIR" ]]; then
+    export CARGO_TARGET_DIR="$CARGO_TARGET_DIR/$TOOLCHAIN"
+fi
+
+SCCACHE_DIR="${CARGO_WRAPPER_SCCACHE_DIR:-$SCCACHE_DIR}"
+if [[ -n "$SCCACHE_DIR" ]]; then
+    export SCCACHE_DIR="$SCCACHE_DIR/$TOOLCHAIN"
+fi
 
 # native
 export PKG_CONFIG_PATH="/usr/lib/${ARCH}-linux-gnu/pkgconfig"

@@ -39,7 +39,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ghcr.io/bitskico/rust-sdk
+            ghcr.io/${{ github.repository }}
             quay.io/bitski/rust-sdk
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
