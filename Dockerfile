@@ -26,7 +26,7 @@ RUN --mount=target=/usr/local/bin/install-deps,source=bin/install-deps \
 # Install cargo bins
 COPY bin/cargo-cross-env /usr/local/rust-sdk/bin/
 RUN --mount=target=/usr/local/bin/install-cargo-bins,source=bin/install-cargo-bins \
-    --mount=type=cache,target=/var/cache/cargo \
+    --mount=type=cache,target=/var/cache/cargo/git \
     --mount=type=cache,target=/var/cache/cargo/target,sharing=private \
     install-cargo-bins
 
@@ -61,9 +61,9 @@ RUN ssh-keyscan github.com | tee -a /etc/ssh/ssh_known_hosts
 # Install executables
 COPY --from=bufbuild/buf /usr/local/bin/buf /usr/local/rust-sdk/bin/
 COPY --from=builder /usr/local/rust-sdk/bin/* /usr/local/rust-sdk/bin/
-COPY bin/cargo /usr/local/cargo-wrapper/bin/
-
-WORKDIR /workspace
+COPY bin/cargo-wrapper /usr/local/cargo-wrapper/bin/cargo
 
 # Cache cargo index
-RUN cargo search --limit 0
+COPY --from=builder /var/cache/cargo/registry /var/cache/cargo/registry
+
+WORKDIR /workspace
