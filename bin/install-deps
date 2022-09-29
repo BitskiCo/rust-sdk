@@ -26,6 +26,8 @@ apt-get update
 apt-get install -y --no-install-recommends \
     cmake \
     jq \
+    protobuf-compiler \
+    zstd \
     libbz2-dev:$ARCH \
     libc6-dev:$ARCH \
     libcurl4-openssl-dev:$ARCH \
@@ -36,5 +38,4 @@ apt-get install -y --no-install-recommends \
     libsqlite3-dev:$ARCH \
     libssl-dev:$ARCH \
     zlib1g-dev:$ARCH \
-    zstd \
     $PACKAGES
