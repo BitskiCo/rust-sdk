@@ -24,8 +24,11 @@ dpkg --add-architecture "$ARCH"
 
 apt-get update
 apt-get install -y --no-install-recommends \
+    clang \
     cmake \
     jq \
+    lld \
+    llvm \
     protobuf-compiler \
     zstd \
     libbz2-dev:$ARCH \
