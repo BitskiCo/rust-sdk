@@ -10,6 +10,8 @@ cargo install \
     cargo-audit \
     cargo-cache \
     cargo-edit \
+    cargo-llvm-cov \
+    cargo-nextest \
     cargo-udeps \
     dotenvy \
     sccache
