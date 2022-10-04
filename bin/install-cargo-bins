@@ -19,4 +19,4 @@ cargo install \
 cargo install \
     --no-default-features \
     --features postgres \
-    diesel_cli@1.4.1
+    diesel_cli
