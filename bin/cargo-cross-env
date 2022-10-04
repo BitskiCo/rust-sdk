@@ -33,6 +33,10 @@ if [[ -n "$SCCACHE_DIR" ]]; then
     export SCCACHE_DIR="$SCCACHE_DIR/$TOOLCHAIN"
 fi
 
+export AR=llvm-ar
+export CC=clang
+export CXX=clang++
+
 # native
 export PKG_CONFIG_PATH="/usr/lib/${ARCH}-linux-gnu/pkgconfig"
 export PKG_CONFIG_SYSROOT_DIR="/usr/lib/${ARCH}-linux-gnu"
@@ -42,9 +46,7 @@ export CARGO_BUILD_RUSTFLAGS="-L/usr/lib/${ARCH}-linux-gnu"
 export PQ_LIB_DIR="/usr/lib/${ARCH}-linux-gnu"
 
 # amd64
-export AR_x86_64_unknown_linux_gnu=x86_64-linux-gnu-ar
-export CC_x86_64_unknown_linux_gnu=x86_64-linux-gnu-gcc
-export CXX_x86_64_unknown_linux_gnu=x86_64-linux-gnu-g++
+export CPPFLAGS_x86_64_unknown_linux_gnu=-target=x86_64-unknown-linux-gnu
 export PKG_CONFIG_PATH_x86_64_unknown_linux_gnu=/usr/lib/x86_64-linux-gnu/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR_x86_64_unknown_linux_gnu=/usr/lib/x86_64-linux-gnu
 
@@ -54,9 +56,7 @@ export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS=-L/usr/lib/x86_64-linux-g
 export PQ_LIB_DIR_X86_64_UNKNOWN_LINUX_GNU=/usr/lib/x86_64-linux-gnu
 
 # arm64
-export AR_aarch64_unknown_linux_gnu=aarch64-linux-gnu-ar
-export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
-export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
+export CPPFLAGS_aarch64_unknown_linux_gnu=-target=aarch64-unknown-linux-gnu
 export PKG_CONFIG_PATH_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
 
