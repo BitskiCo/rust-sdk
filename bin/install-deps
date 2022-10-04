@@ -27,6 +27,7 @@ apt-get install -y --no-install-recommends \
     clang \
     cmake \
     jq \
+    lld \
     llvm \
     protobuf-compiler \
     zstd \
