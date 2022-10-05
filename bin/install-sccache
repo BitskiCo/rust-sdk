@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -eo pipefail
+
+SCCACHE_VERSION=0.3.0
+
+SCCACHE_ARCHIVE_BASENAME="sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl"
+SCCACHE_ARCHIVE="$SCCACHE_ARCHIVE_BASENAME.tar.gz"
+SCCACHE_ARCHIVE_URL="https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_ARCHIVE"
+
+[[ -f "$SCCACHE_ARCHIVE" ]] || curl -LOSsf "$SCCACHE_ARCHIVE_URL"
+[[ -f "$SCCACHE_ARCHIVE.sha256" ]] || curl -LOSsf "$SCCACHE_ARCHIVE_URL.sha256"
+echo "$(cat $SCCACHE_ARCHIVE.sha256) $SCCACHE_ARCHIVE" | sha256sum -c
+
+rm -rf "$SCCACHE_ARCHIVE_BASENAME"
+tar xzf "$SCCACHE_ARCHIVE"
+install -b "$SCCACHE_ARCHIVE_BASENAME/sccache" /usr/local/bin
