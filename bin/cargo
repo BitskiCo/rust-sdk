@@ -61,9 +61,7 @@ if [[ -n "$SCCACHE_DIR" ]]; then
     export SCCACHE_DIR="$SCCACHE_DIR/$TOOLCHAIN"
 fi
 
-if [[ -z "$RUSTC_WRAPPER" ]] && which sccache >/dev/null; then
-    export ACTIONS_CACHE_KEY="rust-sdk-$TOOLCHAIN"
-    export ACTIONS_CACHE_RESTORE_KEYS="rust-sdk-$TOOLCHAIN"
+if [[ -z "$RUSTC_WRAPPER" && "$SCCACHE_GHA_CACHE_MODE" != "false" ]] && which sccache >/dev/null; then
     export CARGO_INCREMENTAL=false
     export RUSTC_WRAPPER=sccache
     export SCCACHE_ERROR_LOG="/tmp/sccache-$ARCH.log"
@@ -73,6 +71,19 @@ if [[ -z "$RUSTC_WRAPPER" ]] && which sccache >/dev/null; then
     case "$ARCH" in
     x86_64) export SCCACHE_SERVER_PORT=4227 ;;
     aarch64) export SCCACHE_SERVER_PORT=4228 ;;
+    esac
+
+    case "$SCCACHE_GHA_CACHE_MODE" in
+    read | r)
+        export SCCACHE_GHA_CACHE_FROM="rust-sdk-$TOOLCHAIN"
+        ;;
+    write | w)
+        export SCCACHE_GHA_CACHE_TO="rust-sdk-$TOOLCHAIN"
+        ;;
+    *)
+        export SCCACHE_GHA_CACHE_FROM="rust-sdk-$TOOLCHAIN"
+        export SCCACHE_GHA_CACHE_TO="rust-sdk-$TOOLCHAIN"
+        ;;
     esac
 fi
 
