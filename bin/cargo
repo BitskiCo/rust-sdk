@@ -1,0 +1,93 @@
+#!/bin/bash
+
+set -eo pipefail
+
+PATH=$(echo $PATH | tr : "\n" | grep -v /cargo-wrapper/ | tr "\n" :)
+export PATH="${PATH%:}"
+
+ARCH="$(uname -m)"
+
+case "$TARGETARCH $ARCH" in
+' '* | 'amd64 x86_64' | 'arm64 aarch64')
+    # native
+    ;;
+'amd64 '*)
+    ARCH=x86_64
+    ;;
+'arm64 '*)
+    ARCH=aarch64
+    ;;
+*)
+    echo >&2 "Target arch $TARGETARCH is not supported"
+    exit 1
+    ;;
+esac
+
+ARCHDIR="$ARCH-linux-gnu"
+TARGET="$ARCH-unknown-linux-gnu"
+
+INCLUDES="-I/usr/include/$ARCHDIR"
+LIBDIRS="-L/lib/$ARCHDIR -L/usr/lib/$ARCHDIR -L/usr/lib/gcc/$ARCHDIR/8"
+FLAGS="--target=$TARGET"
+
+export AR=llvm-ar
+export BINDGEN_EXTRA_CLANG_ARGS="$FLAGS $INCLUDES $LIBDIRS"
+export CC=clang
+export CFLAGS="$FLAGS $LIBDIRS"
+export CPPFLAGS="$FLAGS $INCLUDES"
+export CXX=clang++
+export CXXFLAGS="$FLAGS $LIBDIRS"
+export LD=clang
+export LDFLAGS="$FLAGS -fuse-ld=lld $LIBDIRS"
+export PKG_CONFIG_PATH="/usr/lib/$ARCHDIR/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR=/
+
+export CARGO_BUILD_TARGET="$TARGET"
+export RUSTC_LINKER=clang
+export RUSTFLAGS="-Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-arg=--target=$TARGET $LIBDIRS"
+
+TOOLCHAIN="$(rustc --version | sed -E 's/[^a-zA-Z0-9]+/-/g')"
+TOOLCHAIN="${TOOLCHAIN%-}-$CARGO_BUILD_TARGET"
+
+CARGO_TARGET_DIR="${CARGO_CROSS_ENV_TARGET_DIR:-$CARGO_TARGET_DIR}"
+if [[ -n "$CARGO_TARGET_DIR" ]]; then
+    export CARGO_CROSS_ENV_TARGET_DIR="$CARGO_TARGET_DIR"
+    export CARGO_TARGET_DIR="$CARGO_TARGET_DIR/$TOOLCHAIN"
+fi
+
+SCCACHE_DIR="${CARGO_CROSS_ENV_SCCACHE_DIR:-$SCCACHE_DIR}"
+if [[ -n "$SCCACHE_DIR" ]]; then
+    export CARGO_CROSS_ENV_SCCACHE_DIR="$SCCACHE_DIR"
+    export SCCACHE_DIR="$SCCACHE_DIR/$TOOLCHAIN"
+fi
+
+if [[ -z "$RUSTC_WRAPPER" ]] && which sccache >/dev/null; then
+    export ACTIONS_CACHE_KEY="rust-sdk-$TOOLCHAIN"
+    export ACTIONS_CACHE_RESTORE_KEYS="rust-sdk-$TOOLCHAIN"
+    export CARGO_INCREMENTAL=false
+    export RUSTC_WRAPPER=sccache
+    export SCCACHE_ERROR_LOG="/tmp/sccache-$ARCH.log"
+    export SCCACHE_LOG=debug,sccache::commands=warn,sccache::config=warn
+
+    # Send all platform-specific sccache builds to the same daemon
+    case "$ARCH" in
+    x86_64) export SCCACHE_SERVER_PORT=4227 ;;
+    aarch64) export SCCACHE_SERVER_PORT=4228 ;;
+    esac
+fi
+
+rustup target add "$CARGO_BUILD_TARGET"
+
+error_handler() {
+    echo 'Environment:'
+    env | sort
+    [[ -f "$SCCACHE_ERROR_LOG" ]] && cat "$SCCACHE_ERROR_LOG"
+}
+trap error_handler ERR
+
+cargo "${@:1}"
+
+if which sccache >/dev/null; then
+    sccache --version
+    sccache --show-stats
+fi

@@ -2,21 +2,21 @@
 
 set -eo pipefail
 
-source cargo-cross-env
-
-export CARGO_INSTALL_ROOT=/usr/local/rust-sdk
-
 cargo install \
     cargo-audit \
     cargo-cache \
     cargo-edit \
     cargo-llvm-cov \
     cargo-nextest \
-    cargo-udeps \
-    dotenvy \
-    sccache
+    cargo-udeps
 
 cargo install \
     --no-default-features \
     --features postgres \
     diesel_cli@1.4.1
+
+cargo install \
+    --features cli \
+    dotenvy
+
+cargo install sccache

@@ -33,6 +33,12 @@ FROM --platform=$BUILDPLATFORM quay.io/bitski/rust-sdk AS builder
 # Expose build env variables
 ARG TARGETARCH
 
+# Expose GitHub Actions cache args
+ARG ACTIONS_CACHE_KEY
+ARG ACTIONS_CACHE_RESTORE_KEYS
+ARG ACTIONS_CACHE_URL
+ARG ACTIONS_RUNTIME_TOKEN
+
 # Build and install the binary
 RUN --mount=target=. \
     --mount=type=cache,target=/var/cache/cargo/git \
