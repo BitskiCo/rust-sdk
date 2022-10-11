@@ -19,4 +19,8 @@ cargo install \
     --features cli \
     dotenvy
 
-cargo install sccache
+cargo install \
+    --git https://github.com/BitskiCo/sccache.git \
+    --branch bitski/gha-cache \
+    --features gha \
+    sccache

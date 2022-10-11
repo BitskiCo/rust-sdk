@@ -34,10 +34,9 @@ FROM --platform=$BUILDPLATFORM quay.io/bitski/rust-sdk AS builder
 ARG TARGETARCH
 
 # Expose GitHub Actions cache args
-ARG ACTIONS_CACHE_KEY
-ARG ACTIONS_CACHE_RESTORE_KEYS
 ARG ACTIONS_CACHE_URL
 ARG ACTIONS_RUNTIME_TOKEN
+ARG SCCACHE_GHA_CACHE_MODE
 
 # Build and install the binary
 RUN --mount=target=. \
