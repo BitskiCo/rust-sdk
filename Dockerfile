@@ -1,14 +1,16 @@
 # syntax=docker/dockerfile:1
 
-FROM --platform=linux/amd64 rust:1-buster AS amd64
-FROM --platform=linux/arm64 rust:1-buster AS arm64
+ARG BUILDER_BASE=rust:1-buster
 
 #############################################################################
 # Build container                                                           #
 #############################################################################
 
+FROM --platform=linux/amd64 rust:1-buster AS amd64
+FROM --platform=linux/arm64 rust:1-buster AS arm64
+
 # Use buster instead of bullseye for glibc-2.28
-FROM --platform=$BUILDPLATFORM rust:1-buster AS builder
+FROM --platform=$BUILDPLATFORM $BUILDER_BASE AS builder
 
 # Expose build env variables
 ARG TARGETARCH
@@ -16,6 +18,7 @@ ARG TARGETARCH
 # Expose GitHub Actions cache args
 ARG ACTIONS_CACHE_URL
 ARG ACTIONS_RUNTIME_TOKEN
+ARG GITHUB_SHA
 ARG SCCACHE_GHA_CACHE_MODE
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -39,16 +42,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     lld \
     llvm
 
+# Install sccache for builds
+RUN --mount=target=/usr/local/bin/install-sccache,source=bin/install-sccache \
+    --mount=type=cache,target=.,sharing=locked \
+    which sccache || install-sccache
+
 # Install multi-arch libraries
 RUN --mount=target=/usr/local/bin/install-libs,source=bin/install-libs \
     --mount=target=/sysroot/x86_64-linux-gnu,from=amd64 \
     --mount=target=/sysroot/aarch64-linux-gnu,from=arm64 \
     install-libs
-
-# Install sccache for builds
-RUN --mount=target=/usr/local/bin/install-sccache,source=bin/install-sccache \
-    --mount=type=cache,target=.,sharing=locked \
-    which sccache || install-sccache
 
 # Install cargo bins
 RUN --mount=target=/usr/local/bin/install-cargo-bins,source=bin/install-cargo-bins \

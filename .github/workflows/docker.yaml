@@ -57,18 +57,12 @@ jobs:
           labels: |
             ${{ steps.labels.outputs.expires-after }}
 
-      - name: Expose GitHub Actions vars
+      - name: Configure sccache
         uses: actions/github-script@v6
         with:
           script: |
-            Object.keys(process.env)
-              .filter(RegExp.prototype.test.bind(/^ACTIONS_/))
-              .forEach((name) => {
-                const value = process.env[name];
-                if (!value) return;
-                core.info(`${name}=${value}`);
-                core.exportVariable(name, value);
-            });
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       - name: Log in to ghcr.io
         uses: docker/login-action@v2
@@ -94,3 +88,5 @@ jobs:
           set: |
             *.args.ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             *.args.ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            *.args.GITHUB_SHA=${{ github.sha }}
+            *.args.BUILDER_BASE=ghcr.io/bitskico/rust-sdk
