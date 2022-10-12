@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -eo pipefail
+
+case "$TARGETARCH" in
+amd64) PLATFORM_LIST=x86_64-linux-gnu ;;
+arm64) PLATFORM_LIST=aarch64-linux-gnu ;;
+*) PLATFORM_LIST="aarch64-linux-gnu x86_64-linux-gnu" ;;
+esac
+
+for PLATFORM in $PLATFORM_LIST; do
+    [[ -d "/lib/$PLATFORM" ]] || cp -a "/sysroot/$PLATFORM/lib/$PLATFORM" /lib/
+    [[ -d "/usr/include/$PLATFORM" ]] || cp -a "/sysroot/$PLATFORM/usr/include/$PLATFORM" /usr/include/
+    [[ -d "/usr/lib/$PLATFORM" ]] || cp -a "/sysroot/$PLATFORM/usr/lib/$PLATFORM" /usr/lib/
+    [[ -d "/usr/lib/gcc/$PLATFORM" ]] || cp -a "/sysroot/$PLATFORM/usr/lib/gcc/$PLATFORM" /usr/lib/gcc/
+done
