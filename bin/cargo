@@ -78,11 +78,11 @@ if [[ -z "$RUSTC_WRAPPER" && "$SCCACHE_GHA_CACHE_MODE" != "false" ]] && which sc
         export SCCACHE_GHA_CACHE_FROM="rust-sdk-$TOOLCHAIN"
         ;;
     write | w)
-        export SCCACHE_GHA_CACHE_TO="rust-sdk-$TOOLCHAIN"
+        export SCCACHE_GHA_CACHE_TO="rust-sdk-$TOOLCHAIN-$GITHUB_SHA"
         ;;
     *)
         export SCCACHE_GHA_CACHE_FROM="rust-sdk-$TOOLCHAIN"
-        export SCCACHE_GHA_CACHE_TO="rust-sdk-$TOOLCHAIN"
+        export SCCACHE_GHA_CACHE_TO="rust-sdk-$TOOLCHAIN-$GITHUB_SHA"
         ;;
     esac
 fi

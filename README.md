@@ -36,6 +36,7 @@ ARG TARGETARCH
 # Expose GitHub Actions cache args
 ARG ACTIONS_CACHE_URL
 ARG ACTIONS_RUNTIME_TOKEN
+ARG GITHUB_SHA
 ARG SCCACHE_GHA_CACHE_MODE
 
 # Build and install the binary
