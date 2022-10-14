@@ -61,8 +61,18 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+            let buildArgs = `
+            *.args.ACTIONS_CACHE_URL=${process.env.ACTIONS_CACHE_URL || ''}
+            *.args.ACTIONS_RUNTIME_TOKEN=${process.env.ACTIONS_RUNTIME_TOKEN || ''}
+            *.args.GITHUB_SHA=${context.sha}
+            *.args.SCCACHE_GHA_CACHE_MODE=${process.env.GITHUB_REF_PROTECTED === 'true' ? 'write' : ''}
+            `;
+
+            if (context.eventName != 'schedule') buildArgs += `
+            *.args.BUILDER_BASE=ghcr.io/bitskico/rust-sdk
+            `;
+
+            core.exportVariable('SCCACHE_BUILD_ARGS', buildArgs);
 
       - name: Log in to ghcr.io
         uses: docker/login-action@v2
@@ -86,7 +96,4 @@ jobs:
             ${{ steps.meta.outputs.bake-file }}
           push: true
           set: |
-            *.args.ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
-            *.args.ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            *.args.GITHUB_SHA=${{ github.sha }}
-            *.args.BUILDER_BASE=ghcr.io/bitskico/rust-sdk
+            ${{ env.SCCACHE_BUILD_ARGS }}
