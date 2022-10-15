@@ -107,4 +107,8 @@ COPY --from=builder /build/release/bin/* /usr/local/rust-sdk/bin/
 COPY bin/cargo /usr/local/cargo-wrapper/bin/
 
 # Cache cargo index
-COPY --from=builder /var/cache/cargo/registry /var/cache/cargo/
+COPY --from=builder /var/cache/cargo/registry /var/cache/cargo/registry
+
+# Cache cargo toolchain
+RUN --mount=target=rust-toolchain.toml,source=rust-toolchain.toml \
+    rustup show
