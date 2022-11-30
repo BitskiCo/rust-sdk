@@ -89,16 +89,22 @@ fi
 
 rustup target add "$CARGO_BUILD_TARGET"
 
-error_handler() {
-    echo 'Environment:'
-    env | sort
-    [[ -f "$SCCACHE_ERROR_LOG" ]] && cat "$SCCACHE_ERROR_LOG"
-}
-trap error_handler ERR
+if [[ "$ACTIONS_RUNNER_DEBUG" == 'true' ]]; then
+    error_handler() {
+        echo 'Environment:'
+        env | sort
+        [[ -f "$SCCACHE_ERROR_LOG" ]] && cat "$SCCACHE_ERROR_LOG"
+    }
+    trap error_handler ERR
+fi
 
 cargo "${@:1}"
 
 if which sccache >/dev/null; then
-    sccache --version
+    if [[ "$ACTIONS_RUNNER_DEBUG" == 'true' ]]; then
+        sccache --help
+    else
+        sccache --version
+    fi
     sccache --show-stats
 fi
