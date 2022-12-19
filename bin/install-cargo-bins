@@ -20,7 +20,7 @@ cargo install \
     dotenvy
 
 cargo install \
-    --git https://github.com/BitskiCo/sccache.git \
-    --branch bitski/gha-cache \
+    --git https://github.com/mozilla/sccache.git \
+    --rev 1def7430caf9a5d3d8812df92d24527866c7a27d \
     --features gha \
     sccache
