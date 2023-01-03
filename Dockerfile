@@ -43,10 +43,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     lld \
     llvm
 
-# Install sccache for builds
+# Optionally install sccache for builds
 RUN --mount=target=/usr/local/bin/install-sccache,source=bin/install-sccache \
     --mount=type=cache,target=.,sharing=locked \
-    which sccache || install-sccache
+    install-sccache || true
 
 # Install multi-arch libraries
 RUN --mount=target=/usr/local/bin/install-libs,source=bin/install-libs \

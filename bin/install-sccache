@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-SCCACHE_VERSION=0.3.0
+SCCACHE_VERSION=0.3.3
 
 SCCACHE_ARCHIVE_BASENAME="sccache-v$SCCACHE_VERSION-$(uname -m)-unknown-linux-musl"
 SCCACHE_ARCHIVE="$SCCACHE_ARCHIVE_BASENAME.tar.gz"
