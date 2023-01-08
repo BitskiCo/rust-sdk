@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-cargo install sccache
+cargo install sccache@0.3.3
 
 cargo install \
     cargo-audit \
