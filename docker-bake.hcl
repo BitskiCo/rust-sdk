@@ -9,8 +9,7 @@ target "defaults" {
 
 target "docker-metadata-action" {
   tags = [
-    "ghcr.io/bitskico/rust-sdk:latest",
-    "quay.io/bitski/rust-sdk:latest"
+    "ghcr.io/jakelee8/rust-sdk:latest"
   ]
 }
 

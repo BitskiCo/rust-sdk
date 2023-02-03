@@ -15,7 +15,7 @@ docker buildx create --use --name buildkit
 Use as builder:
 
 ```sh
-docker run --rm -it quay.io/bitski/rust-sdk:latest
+docker run --rm -it ghcr.io/jakelee8/rust-sdk:latest
 ```
 
 Use as cross-compiler in a `Dockerfile`:
@@ -28,7 +28,7 @@ Use as cross-compiler in a `Dockerfile`:
 #############################################################################
 
 # Use the native builder image
-FROM --platform=$BUILDPLATFORM quay.io/bitski/rust-sdk AS builder
+FROM --platform=$BUILDPLATFORM ghcr.io/jakelee8/rust-sdk AS builder
 
 # Expose build env variables
 ARG TARGETARCH
