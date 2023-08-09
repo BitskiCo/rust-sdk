@@ -91,6 +91,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     lld \
     llvm \
     protobuf-compiler \
+    libprotobuf-dev \
     zstd
 
 # Download public key for github.com
