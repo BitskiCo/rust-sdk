@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   docker:
-    runs-on: ubuntu-latest
+    runs-on: 16-cores-ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
